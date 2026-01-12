@@ -217,151 +217,152 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-4xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold">Werkuren Logger</h1>
-          <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px]">Uitloggen</button>
+        <header className="flex justify-between items-center mb-8 px-2">
+          <h1 className="text-3xl sm:text-4xl font-bold">Werkuren Logger</h1>
+          <button onClick={handleLogout} className="bg-red-500 text-white px-6 py-3 rounded text-lg min-h-[56px]">Uitloggen</button>
         </header>
-        <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md mb-8">
-          <h2 className="text-xl mb-4">Timer</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Type</label>
-            <select value={currentType} onChange={(e) => setCurrentType(e.target.value)} className="w-full p-2 border rounded min-h-[44px]">
+        <div className="bg-gray-50 p-6 sm:p-8 rounded shadow-md mb-8">
+          <h2 className="text-2xl mb-6">Timer</h2>
+          <div className="mb-6">
+            <label className="block text-lg font-medium mb-3">Type</label>
+            <select value={currentType} onChange={(e) => setCurrentType(e.target.value)} className="w-full p-4 border rounded text-lg min-h-[56px]">
               <option value="work">Werk</option>
               <option value="break">Pauze</option>
             </select>
           </div>
-          <div className="mb-4 text-center">
-            <span className="text-2xl font-mono">{formatElapsedTime(elapsedTime)}</span>
-            {isRunning && <span className="ml-2 text-sm">({currentType === 'work' ? 'Werk' : 'Pauze'})</span>}
+          <div className="mb-6 text-center">
+            <span className="text-3xl font-mono">{formatElapsedTime(elapsedTime)}</span>
+            {isRunning && <span className="ml-2 text-lg">({currentType === 'work' ? 'Werk' : 'Pauze'})</span>}
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col gap-4">
             {!isRunning ? (
-              <button onClick={() => startTimer('work')} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Start Werk</button>
+              <button onClick={() => startTimer('work')} className="bg-green-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">Start Werk</button>
             ) : currentType === 'work' ? (
               <>
-                <button onClick={stopTimer} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Stop</button>
-                <button onClick={startBreak} className="bg-yellow-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Pauze</button>
+                <button onClick={stopTimer} className="bg-red-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">Stop</button>
+                <button onClick={startBreak} className="bg-yellow-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">Pauze</button>
               </>
             ) : (
               <>
-                <button onClick={stopTimer} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Stop</button>
-                <button onClick={startWork} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Start Werk</button>
+                <button onClick={stopTimer} className="bg-red-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">Stop</button>
+                <button onClick={startWork} className="bg-green-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">Start Werk</button>
               </>
             )}
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="bg-gray-50 p-4 sm:p-6 rounded shadow-md mb-8">
-          <h2 className="text-xl mb-4">{editing ? 'Log Bewerken' : 'Uren Loggen'}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <form onSubmit={handleSubmit} className="bg-gray-50 p-6 sm:p-8 rounded shadow-md mb-8">
+          <h2 className="text-2xl mb-6">{editing ? 'Log Bewerken' : 'Uren Loggen'}</h2>
+          <div className="grid grid-cols-1 gap-6">
             <div>
-              <label className="block text-sm font-medium">Datum</label>
+              <label className="block text-lg font-medium mb-3">Datum</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full p-2 border rounded min-h-[44px]"
+                className="w-full p-4 border rounded text-lg min-h-[56px]"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Starttijd</label>
+              <label className="block text-lg font-medium mb-3">Starttijd</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full p-2 border rounded min-h-[44px]"
+                className="w-full p-4 border rounded text-lg min-h-[56px]"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Eindtijd (optioneel)</label>
+              <label className="block text-lg font-medium mb-3">Eindtijd (optioneel)</label>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full p-2 border rounded min-h-[44px]"
+                className="w-full p-4 border rounded text-lg min-h-[56px]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Type</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-2 border rounded min-h-[44px]">
+              <label className="block text-lg font-medium mb-3">Type</label>
+              <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-4 border rounded text-lg min-h-[56px]">
                 <option value="work">Werk</option>
                 <option value="break">Pauze</option>
               </select>
             </div>
           </div>
-          <div className="mt-4 flex flex-col sm:flex-row gap-2">
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">
+          <div className="mt-8 flex flex-col gap-4">
+            <button type="submit" className="bg-blue-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">
               {editing ? 'Bijwerken' : 'Log'}
             </button>
-            {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gray-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Annuleren</button>}
+            {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gray-500 text-white px-6 py-4 rounded text-xl min-h-[64px]">Annuleren</button>}
           </div>
         </form>
-        <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md mb-8">
-          <h2 className="text-xl mb-4">Dagelijkse Samenvatting</h2>
+        <div className="bg-gray-50 p-6 sm:p-8 rounded shadow-md mb-8">
+          <h2 className="text-2xl mb-6">Dagelijkse Samenvatting</h2>
           <div className="overflow-x-auto">
-            <table className="w-full table-auto min-w-[400px]">
+            <table className="w-full table-auto min-w-[400px] text-lg">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left p-2">Datum</th>
-                  <th className="text-left p-2">Totaal Uren</th>
-                  <th className="text-left p-2">Overwerk Uren</th>
+                  <th className="text-left p-3">Datum</th>
+                  <th className="text-left p-3">Totaal Uren</th>
+                  <th className="text-left p-3">Overwerk Uren</th>
                 </tr>
               </thead>
               <tbody>
                 {summaries.map(summary => (
                   <tr key={summary.date} className="border-b">
-                    <td className="p-2">{summary.date}</td>
-                    <td className="p-2">{summary.totalHours}u</td>
-                    <td className="p-2">{summary.overwork > 0 ? `${summary.overwork}u` : '-'}</td>
+                    <td className="p-3">{summary.date}</td>
+                    <td className="p-3">{summary.totalHours}u</td>
+                    <td className="p-3">{summary.overwork > 0 ? `${summary.overwork}u` : '-'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-        <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-            <h2 className="text-xl">Kalender</h2>
-            <button onClick={exportToExcel} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] w-full sm:w-auto">Exporteren naar Excel</button>
+        <div className="bg-gray-50 p-6 sm:p-8 rounded shadow-md">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-2xl">Kalender</h2>
+            <button onClick={exportToExcel} className="bg-green-500 text-white px-6 py-4 rounded text-xl min-h-[64px] w-full sm:w-auto">Exporteren naar Excel</button>
           </div>
-          <div className="mb-4">
+          <div className="mb-6">
             <Calendar
               onClickDay={setSelectedDate}
               value={selectedDate}
               tileContent={({ date, view }) => {
                 if (view === 'month') {
                   const hours = getHoursForDate(date);
-                  return hours !== '0.0' ? <p className="text-xs text-center">{hours}u</p> : null;
+                  return hours !== '0.0' ? <p className="text-sm text-center font-semibold">{hours}u</p> : null;
                 }
                 return null;
               }}
-              className="w-full"
+              className="w-full text-lg"
+              tileClassName="min-h-[60px] flex items-center justify-center"
             />
           </div>
           {selectedDate && (
             <div>
-              <h3 className="text-lg mb-2">Logs voor {format(selectedDate, 'dd-MM-yyyy')}</h3>
+              <h3 className="text-xl mb-4">Logs voor {format(selectedDate, 'dd-MM-yyyy')}</h3>
               <div className="overflow-x-auto">
-                <table className="w-full table-auto min-w-[600px]">
+                <table className="w-full table-auto min-w-[600px] text-lg">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-2">Start</th>
-                      <th className="text-left p-2">Eind</th>
-                      <th className="text-left p-2">Type</th>
-                      <th className="text-left p-2">Acties</th>
+                      <th className="text-left p-3">Start</th>
+                      <th className="text-left p-3">Eind</th>
+                      <th className="text-left p-3">Type</th>
+                      <th className="text-left p-3">Acties</th>
                     </tr>
                   </thead>
                   <tbody>
                     {logs.filter(log => log.date === format(selectedDate, 'yyyy-MM-dd')).map(log => (
                       <tr key={log.id} className="border-b">
-                        <td className="p-2">{log.startTime}</td>
-                        <td className="p-2">{log.endTime || '-'}</td>
-                        <td className="p-2">{log.type}</td>
-                        <td className="p-2">
-                          <div className="flex flex-col sm:flex-row gap-1">
-                            <button onClick={() => editLog(log)} className="text-blue-500 min-h-[44px]">Bewerken</button>
-                            <button onClick={() => deleteLog(log.id)} className="text-red-500 min-h-[44px]">Verwijderen</button>
+                        <td className="p-3">{log.startTime}</td>
+                        <td className="p-3">{log.endTime || '-'}</td>
+                        <td className="p-3">{log.type}</td>
+                        <td className="p-3">
+                          <div className="flex flex-col gap-2">
+                            <button onClick={() => editLog(log)} className="bg-blue-500 text-white px-4 py-3 rounded text-lg min-h-[56px]">Bewerken</button>
+                            <button onClick={() => deleteLog(log.id)} className="bg-red-500 text-white px-4 py-3 rounded text-lg min-h-[56px]">Verwijderen</button>
                           </div>
                         </td>
                       </tr>

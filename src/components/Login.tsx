@@ -19,16 +19,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-4">
-      <form onSubmit={handleSubmit} className="bg-gray-50 p-4 sm:p-6 rounded shadow-md w-full max-w-sm">
-        <h2 className="text-2xl mb-4">Inloggen</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <form onSubmit={handleSubmit} className="bg-gray-50 p-8 rounded shadow-md w-full max-w-md">
+        <h2 className="text-3xl mb-6 text-center">Inloggen</h2>
+        {error && <p className="text-red-500 mb-6 text-center text-lg">{error}</p>}
         <input
           type="text"
           placeholder="Gebruikersnaam"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-2 mb-2 border rounded min-h-[44px]"
+          className="w-full p-4 mb-4 border rounded text-xl min-h-[64px]"
           required
         />
         <input
@@ -36,10 +36,10 @@ const Login = () => {
           placeholder="Wachtwoord"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-4 border rounded min-h-[44px]"
+          className="w-full p-4 mb-6 border rounded text-xl min-h-[64px]"
           required
         />
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded min-h-[44px]">Inloggen</button>
+        <button type="submit" className="w-full bg-blue-500 text-white p-4 rounded text-2xl min-h-[72px]">Inloggen</button>
       </form>
     </div>
   );
