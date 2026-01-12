@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, parseISO, differenceInMinutes } from 'date-fns';
 import * as XLSX from 'xlsx';
 
 type Log = {
@@ -26,11 +26,41 @@ const Dashboard = () => {
   const [currentStart, setCurrentStart] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
 
+  const [summaries, setSummaries] = useState<{ date: string; totalHours: number; overwork: number }[]>([]);
+
   useEffect(() => {
     if (user) {
       fetchLogs();
     }
   }, [user]);
+
+  useEffect(() => {
+    calculateSummaries();
+  }, [logs]);
+
+  const calculateSummaries = () => {
+    const grouped = logs.reduce((acc, log) => {
+      if (!acc[log.date]) acc[log.date] = [];
+      acc[log.date].push(log);
+      return acc;
+    }, {} as Record<string, Log[]>);
+
+    const summaryList = Object.entries(grouped).map(([date, dayLogs]) => {
+      const totalMinutes = dayLogs.reduce((sum, log) => {
+        if (log.endTime) {
+          const start = parseISO(`${log.date}T${log.startTime}`);
+          const end = parseISO(`${log.date}T${log.endTime}`);
+          return sum + differenceInMinutes(end, start);
+        }
+        return sum;
+      }, 0);
+      const totalHours = totalMinutes / 60;
+      const standardHours = 8.5; // 8 hours work + 0.5 break
+      const overwork = Math.max(0, totalHours - standardHours);
+      return { date, totalHours: Math.round(totalHours * 100) / 100, overwork: Math.round(overwork * 100) / 100 };
+    });
+    setSummaries(summaryList);
+  };
 
   useEffect(() => {
     let interval: number | null = null;
@@ -208,6 +238,29 @@ const Dashboard = () => {
             {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gray-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Cancel</button>}
           </div>
         </form>
+        <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md mb-8">
+          <h2 className="text-xl mb-4">Daily Summary</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full table-auto min-w-[400px]">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2">Date</th>
+                  <th className="text-left p-2">Total Hours</th>
+                  <th className="text-left p-2">Overwork Hours</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summaries.map(summary => (
+                  <tr key={summary.date} className="border-b">
+                    <td className="p-2">{summary.date}</td>
+                    <td className="p-2">{summary.totalHours}h</td>
+                    <td className="p-2">{summary.overwork > 0 ? `${summary.overwork}h` : '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <h2 className="text-xl">Your Logs</h2>
