@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -15,7 +11,7 @@ type Log = {
 };
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [logs, setLogs] = useState<Log[]>([]);
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -29,23 +25,28 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  const fetchLogs = async () => {
-    const q = query(collection(db, 'logs'), where('userId', '==', user!.uid));
-    const querySnapshot = await getDocs(q);
-    const logsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Log));
-    setLogs(logsData);
+  const fetchLogs = () => {
+    const storedLogs = localStorage.getItem('workLogs');
+    if (storedLogs) {
+      setLogs(JSON.parse(storedLogs));
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const saveLogs = (newLogs: Log[]) => {
+    localStorage.setItem('workLogs', JSON.stringify(newLogs));
+    setLogs(newLogs);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const logData = { date, startTime, endTime: endTime || null, userId: user!.uid };
+    const logData: Log = { id: editing || Date.now().toString(), date, startTime, endTime: endTime || null };
     if (editing) {
-      await updateDoc(doc(db, 'logs', editing), logData);
+      const updatedLogs = logs.map(log => log.id === editing ? logData : log);
+      saveLogs(updatedLogs);
       setEditing(null);
     } else {
-      await addDoc(collection(db, 'logs'), logData);
+      saveLogs([...logs, logData]);
     }
-    fetchLogs();
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setStartTime(format(new Date(), 'HH:mm'));
     setEndTime('');
@@ -58,13 +59,13 @@ const Dashboard = () => {
     setEndTime(log.endTime || '');
   };
 
-  const deleteLog = async (id: string) => {
-    await deleteDoc(doc(db, 'logs', id));
-    fetchLogs();
+  const deleteLog = (id: string) => {
+    const updatedLogs = logs.filter(log => log.id !== id);
+    saveLogs(updatedLogs);
   };
 
-  const handleLogout = async () => {
-    await signOut(auth);
+  const handleLogout = () => {
+    logout();
     navigate('/login');
   };
 

@@ -1,20 +1,19 @@
 import { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
+    if (login(username, password)) {
       navigate('/');
-    } catch (err) {
+    } else {
       setError('Invalid credentials');
     }
   };
@@ -25,10 +24,10 @@ const Login = () => {
         <h2 className="text-2xl mb-4">Login</h2>
         {error && <p className="text-red-500">{error}</p>}
         <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           className="w-full p-2 mb-2 border rounded"
           required
         />
@@ -41,7 +40,6 @@ const Login = () => {
           required
         />
         <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Login</button>
-        <p className="mt-4 text-sm">Don't have an account? <a href="/register" className="text-blue-500">Register</a></p>
       </form>
     </div>
   );
