@@ -135,13 +135,13 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-white p-4">
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold">Work Hours Logger</h1>
           <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px]">Logout</button>
         </header>
-        <div className="bg-white p-4 sm:p-6 rounded shadow-md mb-8">
+        <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md mb-8">
           <h2 className="text-xl mb-4">Timer</h2>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">Type</label>
@@ -161,7 +161,7 @@ const Dashboard = () => {
             )}
           </div>
         </div>
-        <form onSubmit={handleSubmit} className="bg-white p-4 sm:p-6 rounded shadow-md mb-8">
+        <form onSubmit={handleSubmit} className="bg-gray-50 p-4 sm:p-6 rounded shadow-md mb-8">
           <h2 className="text-xl mb-4">{editing ? 'Edit Log' : 'Log Hours'}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
@@ -208,7 +208,7 @@ const Dashboard = () => {
             {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gray-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Cancel</button>}
           </div>
         </form>
-        <div className="bg-white p-4 sm:p-6 rounded shadow-md">
+        <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
             <h2 className="text-xl">Your Logs</h2>
             <button onClick={exportToExcel} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] w-full sm:w-auto">Export to Excel</button>

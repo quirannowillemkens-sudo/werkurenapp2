@@ -19,8 +19,8 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <form onSubmit={handleSubmit} className="bg-white p-4 sm:p-6 rounded shadow-md w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+      <form onSubmit={handleSubmit} className="bg-gray-50 p-4 sm:p-6 rounded shadow-md w-full max-w-sm">
         <h2 className="text-2xl mb-4">Login</h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <input
