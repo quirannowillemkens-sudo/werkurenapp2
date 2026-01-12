@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { format, parseISO, differenceInMinutes } from 'date-fns';
 import * as XLSX from 'xlsx';
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 type Log = {
   id: string;
@@ -16,7 +18,8 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [logs, setLogs] = useState<Log[]>([]);
-  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [date, setDate] = useState(format(selectedDate, 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(format(new Date(), 'HH:mm'));
   const [endTime, setEndTime] = useState('');
   const [type, setType] = useState('work');
@@ -49,6 +52,10 @@ const Dashboard = () => {
       }
     }
   }, [date, logs, editing]);
+
+  useEffect(() => {
+    setDate(format(selectedDate, 'yyyy-MM-dd'));
+  }, [selectedDate]);
 
   const calculateSummaries = () => {
     const grouped = logs.reduce((acc, log) => {
@@ -178,6 +185,20 @@ const Dashboard = () => {
     return `${hours.toString().padStart(2, '0')}:${(minutes % 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
   };
 
+  const getHoursForDate = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const dayLogs = logs.filter(log => log.date === dateStr && log.type === 'work');
+    const totalMinutes = dayLogs.reduce((sum, log) => {
+      if (log.endTime) {
+        const start = parseISO(`${log.date}T${log.startTime}`);
+        const end = parseISO(`${log.date}T${log.endTime}`);
+        return sum + differenceInMinutes(end, start);
+      }
+      return sum;
+    }, 0);
+    return (totalMinutes / 60).toFixed(1);
+  };
+
   return (
     <div className="min-h-screen bg-white p-4">
       <div className="max-w-4xl mx-auto">
@@ -277,38 +298,55 @@ const Dashboard = () => {
         </div>
         <div className="bg-gray-50 p-4 sm:p-6 rounded shadow-md">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-            <h2 className="text-xl">Jouw Logs</h2>
+            <h2 className="text-xl">Kalender</h2>
             <button onClick={exportToExcel} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] w-full sm:w-auto">Exporteren naar Excel</button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto min-w-[600px]">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-2">Datum</th>
-                  <th className="text-left p-2">Start</th>
-                  <th className="text-left p-2">Eind</th>
-                  <th className="text-left p-2">Type</th>
-                  <th className="text-left p-2">Acties</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map(log => (
-                  <tr key={log.id} className="border-b">
-                    <td className="p-2">{log.date}</td>
-                    <td className="p-2">{log.startTime}</td>
-                    <td className="p-2">{log.endTime || '-'}</td>
-                    <td className="p-2">{log.type}</td>
-                    <td className="p-2">
-                      <div className="flex flex-col sm:flex-row gap-1">
-                        <button onClick={() => editLog(log)} className="text-blue-500 min-h-[44px]">Bewerken</button>
-                        <button onClick={() => deleteLog(log.id)} className="text-red-500 min-h-[44px]">Verwijderen</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mb-4">
+            <Calendar
+              onClickDay={setSelectedDate}
+              value={selectedDate}
+              tileContent={({ date, view }) => {
+                if (view === 'month') {
+                  const hours = getHoursForDate(date);
+                  return hours !== '0.0' ? <p className="text-xs text-center">{hours}u</p> : null;
+                }
+                return null;
+              }}
+              className="w-full"
+            />
           </div>
+          {selectedDate && (
+            <div>
+              <h3 className="text-lg mb-2">Logs voor {format(selectedDate, 'dd-MM-yyyy')}</h3>
+              <div className="overflow-x-auto">
+                <table className="w-full table-auto min-w-[600px]">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2">Start</th>
+                      <th className="text-left p-2">Eind</th>
+                      <th className="text-left p-2">Type</th>
+                      <th className="text-left p-2">Acties</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.filter(log => log.date === format(selectedDate, 'yyyy-MM-dd')).map(log => (
+                      <tr key={log.id} className="border-b">
+                        <td className="p-2">{log.startTime}</td>
+                        <td className="p-2">{log.endTime || '-'}</td>
+                        <td className="p-2">{log.type}</td>
+                        <td className="p-2">
+                          <div className="flex flex-col sm:flex-row gap-1">
+                            <button onClick={() => editLog(log)} className="text-blue-500 min-h-[44px]">Bewerken</button>
+                            <button onClick={() => deleteLog(log.id)} className="text-red-500 min-h-[44px]">Verwijderen</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
