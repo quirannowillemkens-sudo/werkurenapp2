@@ -219,7 +219,7 @@ const Dashboard = () => {
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-center mb-10 px-4">
           <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Werkuren Logger</h1>
-          <button onClick={handleLogout} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-2xl font-bold min-h-[72px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+          <button onClick={handleLogout} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-5xl font-bold min-h-[72px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
             Uitloggen
           </button>
         </header>
@@ -231,24 +231,24 @@ const Dashboard = () => {
           </div>
           <div className="flex flex-col gap-6">
             {!isRunning ? (
-              <button onClick={() => startTimer('work')} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+              <button onClick={() => startTimer('work')} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
                 ▶️ Start Werk
               </button>
             ) : currentType === 'work' ? (
               <>
-                <button onClick={stopTimer} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+                <button onClick={stopTimer} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
                   ⏹️ Stop
                 </button>
-                <button onClick={startBreak} className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+                <button onClick={startBreak} className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-yellow-600 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
                   ☕ Pauze
                 </button>
               </>
             ) : (
               <>
-                <button onClick={stopTimer} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+                <button onClick={stopTimer} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
                   ⏹️ Stop
                 </button>
-                <button onClick={startWork} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+                <button onClick={startWork} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
                   ▶️ Start Werk
                 </button>
               </>
@@ -296,10 +296,10 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="mt-10 flex flex-col gap-4">
-            <button type="submit" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-xl">
+            <button type="submit" className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-xl">
               {editing ? '✏️ Bijwerken' : '💾 Log'}
             </button>
-            {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-5 rounded-2xl text-3xl font-bold min-h-[80px] hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 shadow-xl">❌ Annuleren</button>}
+            {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gradient-to-r from-gray-500 to-gray-600 text-white px-8 py-5 rounded-2xl text-6xl font-bold min-h-[80px] hover:from-gray-600 hover:to-gray-700 transform hover:scale-105 transition-all duration-200 shadow-xl">❌ Annuleren</button>}
           </div>
         </form>
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mb-10 border border-white/50">
@@ -328,7 +328,7 @@ const Dashboard = () => {
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/50">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
             <h2 className="text-3xl font-bold text-gray-800">📅 Kalender</h2>
-            <button onClick={exportToExcel} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-2xl text-2xl font-bold min-h-[72px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
+            <button onClick={exportToExcel} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-2xl text-5xl font-bold min-h-[72px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
               📊 Exporteren naar Excel
             </button>
           </div>
@@ -368,10 +368,10 @@ const Dashboard = () => {
                         <td className="p-4 font-semibold">{log.type === 'work' ? '💼 Werk' : '☕ Pauze'}</td>
                         <td className="p-4">
                           <div className="flex flex-col gap-3">
-                            <button onClick={() => editLog(log)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl text-xl font-bold min-h-[60px] hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                            <button onClick={() => editLog(log)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl text-4xl font-bold min-h-[60px] hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
                               ✏️ Bewerken
                             </button>
-                            <button onClick={() => deleteLog(log.id)} className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl text-xl font-bold min-h-[60px] hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+                            <button onClick={() => deleteLog(log.id)} className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl text-4xl font-bold min-h-[60px] hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
                               🗑️ Verwijderen
                             </button>
                           </div>
