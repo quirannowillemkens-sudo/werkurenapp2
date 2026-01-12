@@ -126,7 +126,12 @@ const Dashboard = () => {
     setEndTime('');
   };
 
-  const startTimer = () => {
+  const startTimer = (type: 'work' | 'break' = 'work') => {
+    if (isRunning) {
+      // Stop current session and log it
+      stopTimer();
+    }
+    setCurrentType(type);
     setCurrentStart(new Date());
     setIsRunning(true);
   };
@@ -146,6 +151,16 @@ const Dashboard = () => {
       setCurrentStart(null);
       setElapsedTime(0);
     }
+  };
+
+  const startBreak = () => {
+    stopTimer();
+    startTimer('break');
+  };
+
+  const startWork = () => {
+    stopTimer();
+    startTimer('work');
   };
 
   const editLog = (log: Log) => {
@@ -217,12 +232,21 @@ const Dashboard = () => {
           </div>
           <div className="mb-4 text-center">
             <span className="text-2xl font-mono">{formatElapsedTime(elapsedTime)}</span>
+            {isRunning && <span className="ml-2 text-sm">({currentType === 'work' ? 'Werk' : 'Pauze'})</span>}
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             {!isRunning ? (
-              <button onClick={startTimer} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Start</button>
+              <button onClick={() => startTimer('work')} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Start Werk</button>
+            ) : currentType === 'work' ? (
+              <>
+                <button onClick={stopTimer} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Stop</button>
+                <button onClick={startBreak} className="bg-yellow-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Pauze</button>
+              </>
             ) : (
-              <button onClick={stopTimer} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Stop</button>
+              <>
+                <button onClick={stopTimer} className="bg-red-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Stop</button>
+                <button onClick={startWork} className="bg-green-500 text-white px-4 py-2 rounded min-h-[44px] flex-1">Start Werk</button>
+              </>
             )}
           </div>
         </div>
