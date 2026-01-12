@@ -50,7 +50,7 @@ const Login = () => {
             />
           </div>
         </div>
-        <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-5 rounded-xl text-2xl font-bold min-h-[80px] mt-8 hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+        <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-5 rounded-xl text-3xl font-bold min-h-[80px] mt-8 hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
           Inloggen 🚀
         </button>
         <div className="text-center mt-6">
