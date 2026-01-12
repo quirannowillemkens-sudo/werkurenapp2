@@ -38,6 +38,18 @@ const Dashboard = () => {
     calculateSummaries();
   }, [logs]);
 
+  useEffect(() => {
+    if (!editing) {
+      const dayLogs = logs.filter(log => log.date === date);
+      if (dayLogs.length > 0) {
+        const latestEnd = dayLogs.reduce((latest, log) => log.endTime && log.endTime > latest ? log.endTime : latest, '00:00');
+        setStartTime(latestEnd);
+      } else {
+        setStartTime(format(new Date(), 'HH:mm'));
+      }
+    }
+  }, [date, logs, editing]);
+
   const calculateSummaries = () => {
     const grouped = logs.reduce((acc, log) => {
       if (!acc[log.date]) acc[log.date] = [];
