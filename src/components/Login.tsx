@@ -19,11 +19,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-6">
-      <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-6">
+      <form onSubmit={handleSubmit} className="bg-white/95 backdrop-blur-xl p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
         <div className="text-center mb-8">
-          <h2 className="text-6xl font-bold text-gray-800 mb-2">Welkom</h2>
-          <p className="text-gray-600 text-3xl">Log in op je account</p>
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
+            <span className="text-4xl">⏰</span>
+          </div>
+          <h2 className="text-5xl font-bold text-gray-800 mb-2">Welkom</h2>
+          <p className="text-gray-600 text-2xl">Log in op je account</p>
         </div>
         {error && <p className="text-red-500 mb-6 text-center text-2xl bg-red-50 p-3 rounded-lg">{error}</p>}
         <div className="space-y-6">
@@ -50,8 +53,8 @@ const Login = () => {
             />
           </div>
         </div>
-        <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white p-5 rounded-xl text-6xl font-bold min-h-[80px] mt-8 hover:from-blue-600 hover:to-purple-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-          Inloggen 🚀
+        <button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 rounded-2xl text-5xl font-bold min-h-[80px] mt-8 hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
+          Inloggen →
         </button>
         <div className="text-center mt-6">
           <p className="text-gray-600 text-xl">Werkuren Logger - Efficiënt tijdregistratie</p>
