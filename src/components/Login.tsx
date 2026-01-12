@@ -22,30 +22,30 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-6">
       <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
         <div className="text-center mb-8">
-          <h2 className="text-4xl font-bold text-gray-800 mb-2">Welkom</h2>
-          <p className="text-gray-600 text-lg">Log in op je account</p>
+          <h2 className="text-6xl font-bold text-gray-800 mb-2">Welkom</h2>
+          <p className="text-gray-600 text-3xl">Log in op je account</p>
         </div>
-        {error && <p className="text-red-500 mb-6 text-center text-lg bg-red-50 p-3 rounded-lg">{error}</p>}
+        {error && <p className="text-red-500 mb-6 text-center text-2xl bg-red-50 p-3 rounded-lg">{error}</p>}
         <div className="space-y-6">
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-lg">Gebruikersnaam</label>
+            <label className="block text-gray-700 font-semibold mb-2 text-2xl">Gebruikersnaam</label>
             <input
               type="text"
               placeholder="Voer je gebruikersnaam in"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-5 border-2 border-gray-300 rounded-xl text-xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
+              className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
               required
             />
           </div>
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-lg">Wachtwoord</label>
+            <label className="block text-gray-700 font-semibold mb-2 text-2xl">Wachtwoord</label>
             <input
               type="password"
               placeholder="Voer je wachtwoord in"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-5 border-2 border-gray-300 rounded-xl text-xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
+              className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
               required
             />
           </div>
@@ -54,7 +54,7 @@ const Login = () => {
           Inloggen 🚀
         </button>
         <div className="text-center mt-6">
-          <p className="text-gray-600">Werkuren Logger - Efficiënt tijdregistratie</p>
+          <p className="text-gray-600 text-xl">Werkuren Logger - Efficiënt tijdregistratie</p>
         </div>
       </form>
     </div>

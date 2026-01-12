@@ -218,16 +218,16 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
       <div className="max-w-4xl mx-auto">
         <header className="flex justify-between items-center mb-10 px-4">
-          <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Werkuren Logger</h1>
+          <h1 className="text-6xl sm:text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Werkuren Logger</h1>
           <button onClick={handleLogout} className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-5xl font-bold min-h-[72px] hover:from-red-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
             Uitloggen
           </button>
         </header>
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mb-10 border border-white/50">
-          <h2 className="text-3xl mb-8 font-bold text-gray-800 text-center">⏱️ Timer</h2>
+          <h2 className="text-5xl mb-8 font-bold text-gray-800 text-center">⏱️ Timer</h2>
           <div className="mb-8 text-center">
             <span className="text-5xl font-mono font-bold text-gray-800 bg-gray-100 px-6 py-3 rounded-2xl shadow-inner">{formatElapsedTime(elapsedTime)}</span>
-            {isRunning && <span className="ml-4 text-xl font-semibold text-blue-600">({currentType === 'work' ? 'Werk' : 'Pauze'})</span>}
+            {isRunning && <span className="ml-4 text-3xl font-semibold text-blue-600">({currentType === 'work' ? 'Werk' : 'Pauze'})</span>}
           </div>
           <div className="flex flex-col gap-6">
             {!isRunning ? (
@@ -256,40 +256,40 @@ const Dashboard = () => {
           </div>
         </div>
         <form onSubmit={handleSubmit} className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mb-10 border border-white/50">
-          <h2 className="text-3xl mb-8 font-bold text-gray-800 text-center">📝 {editing ? 'Log Bewerken' : 'Uren Loggen'}</h2>
+          <h2 className="text-5xl mb-8 font-bold text-gray-800 text-center">📝 {editing ? 'Log Bewerken' : 'Uren Loggen'}</h2>
           <div className="grid grid-cols-1 gap-6">
             <div>
-              <label className="block text-lg font-semibold mb-3 text-gray-700">📅 Datum</label>
+              <label className="block text-2xl font-semibold mb-3 text-gray-700">📅 Datum</label>
               <input
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full p-5 border-2 border-gray-300 rounded-xl text-xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
+                className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
                 required
               />
             </div>
             <div>
-              <label className="block text-lg font-semibold mb-3 text-gray-700">🕐 Starttijd</label>
+              <label className="block text-2xl font-semibold mb-3 text-gray-700">🕐 Starttijd</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full p-5 border-2 border-gray-300 rounded-xl text-xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
+                className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
                 required
               />
             </div>
             <div>
-              <label className="block text-lg font-semibold mb-3 text-gray-700">🕐 Eindtijd (optioneel)</label>
+              <label className="block text-2xl font-semibold mb-3 text-gray-700">🕐 Eindtijd (optioneel)</label>
               <input
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full p-5 border-2 border-gray-300 rounded-xl text-xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
+                className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
               />
             </div>
             <div>
-              <label className="block text-lg font-semibold mb-3 text-gray-700">🏷️ Type</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-5 border-2 border-gray-300 rounded-xl text-xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50">
+              <label className="block text-2xl font-semibold mb-3 text-gray-700">🏷️ Type</label>
+              <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50">
                 <option value="work">💼 Werk</option>
                 <option value="break">☕ Pauze</option>
               </select>
@@ -303,9 +303,9 @@ const Dashboard = () => {
           </div>
         </form>
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl mb-10 border border-white/50">
-          <h2 className="text-3xl mb-8 font-bold text-gray-800 text-center">📊 Dagelijkse Samenvatting</h2>
+          <h2 className="text-5xl mb-8 font-bold text-gray-800 text-center">📊 Dagelijkse Samenvatting</h2>
           <div className="overflow-x-auto">
-            <table className="w-full table-auto min-w-[400px] text-xl bg-white rounded-2xl overflow-hidden shadow-lg">
+            <table className="w-full table-auto min-w-[400px] text-2xl bg-white rounded-2xl overflow-hidden shadow-lg">
               <thead className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
                 <tr>
                   <th className="text-left p-4 font-bold">📅 Datum</th>
@@ -327,7 +327,7 @@ const Dashboard = () => {
         </div>
         <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border border-white/50">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h2 className="text-3xl font-bold text-gray-800">📅 Kalender</h2>
+            <h2 className="text-5xl font-bold text-gray-800">📅 Kalender</h2>
             <button onClick={exportToExcel} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-2xl text-5xl font-bold min-h-[72px] hover:from-green-600 hover:to-emerald-600 transform hover:scale-105 transition-all duration-200 shadow-xl">
               📊 Exporteren naar Excel
             </button>
@@ -349,9 +349,9 @@ const Dashboard = () => {
           </div>
           {selectedDate && (
             <div className="bg-white/90 p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h3 className="text-2xl mb-6 font-bold text-gray-800">📋 Logs voor {format(selectedDate, 'dd-MM-yyyy')}</h3>
+              <h3 className="text-4xl mb-6 font-bold text-gray-800">📋 Logs voor {format(selectedDate, 'dd-MM-yyyy')}</h3>
               <div className="overflow-x-auto">
-                <table className="w-full table-auto min-w-[600px] text-lg bg-white rounded-xl overflow-hidden shadow-md">
+                <table className="w-full table-auto min-w-[600px] text-2xl bg-white rounded-xl overflow-hidden shadow-md">
                   <thead className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
                     <tr>
                       <th className="text-left p-4 font-bold">🕐 Start</th>
