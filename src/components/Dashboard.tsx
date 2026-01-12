@@ -58,16 +58,18 @@ const Dashboard = () => {
     }, {} as Record<string, Log[]>);
 
     const summaryList = Object.entries(grouped).map(([date, dayLogs]) => {
-      const totalMinutes = dayLogs.reduce((sum, log) => {
-        if (log.endTime) {
-          const start = parseISO(`${log.date}T${log.startTime}`);
-          const end = parseISO(`${log.date}T${log.endTime}`);
-          return sum + differenceInMinutes(end, start);
-        }
-        return sum;
-      }, 0);
+      const totalMinutes = dayLogs
+        .filter(log => log.type === 'work')
+        .reduce((sum, log) => {
+          if (log.endTime) {
+            const start = parseISO(`${log.date}T${log.startTime}`);
+            const end = parseISO(`${log.date}T${log.endTime}`);
+            return sum + differenceInMinutes(end, start);
+          }
+          return sum;
+        }, 0);
       const totalHours = totalMinutes / 60;
-      const standardHours = 8.5; // 8 hours work + 0.5 break
+      const standardHours = 8; // 8 hours work
       const overwork = Math.max(0, totalHours - standardHours);
       return { date, totalHours: Math.round(totalHours * 100) / 100, overwork: Math.round(overwork * 100) / 100 };
     });
