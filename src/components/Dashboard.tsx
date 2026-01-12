@@ -32,7 +32,7 @@ const Dashboard = () => {
   }, [user]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: number | null = null;
     if (isRunning && currentStart) {
       interval = setInterval(() => {
         setElapsedTime(Date.now() - currentStart.getTime());
