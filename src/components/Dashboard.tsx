@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { format, differenceInMinutes } from 'date-fns';
 import * as XLSX from 'xlsx';
 import Calendar from 'react-calendar';
-import { Button, Card, Input, PageLayout, Alert } from './ui';
 import 'react-calendar/dist/Calendar.css';
 
 type Log = {
@@ -179,295 +178,306 @@ const Dashboard = () => {
   };
 
   return (
-    <PageLayout
-      title="Werkuren Logger"
-      header={true}
-      headerAction={
-        <Button 
-          variant="secondary"
-          size="md"
-          onClick={handleLogout}
-          icon="🚪"
-        >
-          Uitloggen
-        </Button>
-      }
-    >
-      {feedback && (
-        <div className="mb-6">
-          <Alert
-            type={feedback.type}
-            message={feedback.message}
-            onClose={() => setFeedback(null)}
-          />
-        </div>
-      )}
-
-      {/* Timer Section */}
-      <Card variant="elevated" className="p-4 sm:p-8 mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-6 sm:mb-8 flex items-center gap-3">
-          <span>⏱️</span> Timer
-        </h2>
-
-        <div className="mb-6 sm:mb-8 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-8 py-4 sm:py-6 rounded-lg sm:rounded-xl inline-block shadow-lg">
-            <span className="text-3xl sm:text-5xl font-mono font-bold font-sans">
-              {formatElapsedTime(elapsedTime)}
-            </span>
-          </div>
-          {isRunning && (
-            <div className="mt-3 sm:mt-4 text-base sm:text-lg font-semibold text-blue-600 bg-blue-50 px-3 sm:px-4 py-2 rounded-lg inline-block">
-              {currentType === 'work' ? '💼 Werk actief' : '☕ Pauze actief'}
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-md border-b border-indigo-100 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-2xl">⏰</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Werkuren Logger
+                </h1>
+                <p className="text-sm text-gray-600">Welkom, {user}</p>
+              </div>
             </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {!isRunning ? (
-            <Button 
-              variant="success"
-              size="lg"
-              onClick={() => startTimer('work')}
-              icon="▶️"
-              fullWidth
-              className="col-span-1 sm:col-span-2"
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all duration-200 flex items-center gap-2 font-medium"
             >
-              Start Werk
-            </Button>
-          ) : currentType === 'work' ? (
-            <>
-              <Button 
-                variant="danger"
-                size="lg"
-                onClick={stopTimer}
-                icon="⏹️"
-                fullWidth
-              >
-                Stop
-              </Button>
-              <Button 
-                variant="secondary"
-                size="lg"
-                onClick={() => {
-                  stopTimer();
-                  setTimeout(() => startTimer('break'), 300);
-                }}
-                icon="☕"
-                fullWidth
-              >
-                Pauze
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button 
-                variant="danger"
-                size="lg"
-                onClick={stopTimer}
-                icon="⏹️"
-                fullWidth
-              >
-                Stop
-              </Button>
-              <Button 
-                variant="success"
-                size="lg"
-                onClick={() => {
-                  stopTimer();
-                  setTimeout(() => startTimer('work'), 300);
-                }}
-                icon="▶️"
-                fullWidth
-              >
-                Hervat
-              </Button>
-            </>
-          )}
-        </div>
-      </Card>
-
-      {/* Form Section */}
-      <Card variant="elevated" className="p-4 sm:p-8 mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-6 sm:mb-8 flex items-center gap-3">
-          <span>📝</span> {editing ? 'Log Bewerken' : 'Uren Loggen'}
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-            <Input
-              label="Datum"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-            <Input
-              label="Starttijd"
-              type="time"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              required
-            />
-            <Input
-              label="Eindtijd (optioneel)"
-              type="time"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-            />
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-slate-700">Type</label>
-              <select 
-                value={type} 
-                onChange={(e) => setType(e.target.value)}
-                className="px-3 sm:px-4 py-2 sm:py-2.5 text-base rounded-lg border-2 border-slate-200 bg-white focus:border-blue-500 focus:outline-none transition-all"
-              >
-                <option value="work">💼 Werk</option>
-                <option value="break">☕ Pauze</option>
-              </select>
-            </div>
+              <span>🚪</span>
+              <span className="hidden sm:inline">Uitloggen</span>
+            </button>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-2 sm:pt-4">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              icon={editing ? "✓" : "💾"}
-              fullWidth
-            >
-              {editing ? 'Bijwerken' : 'Opslaan'}
-            </Button>
-            {editing && (
-              <Button
-                type="button"
-                variant="secondary"
-                size="lg"
-                onClick={() => setEditing(null)}
-                icon="✕"
-                fullWidth
-              >
-                Annuleren
-              </Button>
-            )}
-          </div>
-        </form>
-      </Card>
-
-      {/* Summary Section */}
-      <Card variant="elevated" className="p-4 sm:p-8 mb-6 sm:mb-8">
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-3">
-          <span>📊</span> Overzicht
-        </h2>
-
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <table className="w-full text-xs sm:text-sm">
-            <thead>
-              <tr className="border-b-2 border-slate-200 bg-slate-50">
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3 font-semibold text-slate-700">Datum</th>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3 font-semibold text-slate-700">Totaal</th>
-                <th className="text-left px-3 sm:px-4 py-2 sm:py-3 font-semibold text-slate-700">Overwerk</th>
-              </tr>
-            </thead>
-            <tbody>
-              {summaries.map(summary => (
-                <tr key={summary.date} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
-                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-slate-900 font-medium">{summary.date}</td>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-blue-600 font-semibold">{summary.totalHours}u</td>
-                  <td className="px-3 sm:px-4 py-2 sm:py-3 text-red-600 font-semibold">
-                    {(summary.overwork as any) > 0 ? `${summary.overwork}u` : '-'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
-      </Card>
+      </header>
 
-      {/* Calendar Section */}
-      <Card variant="elevated" className="p-4 sm:p-8 mb-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <span>📅</span> Kalender
-          </h2>
-          <Button
-            variant="success"
-            onClick={exportToExcel}
-            icon="📊"
-            size="md"
-            fullWidth={false}
-          >
-            Export
-          </Button>
-        </div>
-
-        <div className="bg-white rounded-lg p-2 sm:p-4 shadow-sm border border-slate-200 overflow-x-auto">
-          <Calendar
-            onClickDay={setSelectedDate}
-            value={selectedDate}
-            tileContent={({ date, view }) => {
-              if (view === 'month') {
-                const hours = getHoursForDate(date);
-                return hours !== '0.0' ? (
-                  <p className="text-xs sm:text-sm font-bold text-blue-600 mt-0.5 sm:mt-1">{hours}u</p>
-                ) : null;
-              }
-              return null;
-            }}
-            className="w-full text-xs sm:text-sm"
-            tileClassName="h-16 sm:h-24 flex flex-col items-center justify-center hover:bg-blue-50 rounded transition-colors"
-          />
-        </div>
-
-        {selectedDate && (
-          <div className="mt-4 sm:mt-6">
-            <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">
-              Logs voor {format(selectedDate, 'dd-MM-yyyy')}
-            </h3>
-            <div className="space-y-2 sm:space-y-3 max-h-96 overflow-y-auto">
-              {logs
-                .filter(log => log.date === format(selectedDate, 'yyyy-MM-dd'))
-                .map(log => (
-                  <div
-                    key={log.id}
-                    className="bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 hover:bg-slate-100 transition-colors"
-                  >
-                    <div>
-                      <p className="font-semibold text-slate-900 text-sm sm:text-base">
-                        {log.startTime} - {log.endTime || '-'}
-                      </p>
-                      <p className="text-xs sm:text-sm text-slate-600">
-                        {log.type === 'work' ? '💼 Werk' : '☕ Pauze'}
-                      </p>
-                    </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => editLog(log)}
-                        icon="✏️"
-                        fullWidth
-                        className="sm:w-auto"
-                      >
-                        Bewerk
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => deleteLog(log.id)}
-                        icon="🗑️"
-                        fullWidth
-                        className="sm:w-auto"
-                      >
-                        Verwijder
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-            </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Feedback Alert */}
+        {feedback && (
+          <div className={`p-4 rounded-xl border-2 ${
+            feedback.type === 'success' 
+              ? 'bg-green-50 border-green-200 text-green-800' 
+              : 'bg-red-50 border-red-200 text-red-800'
+          } flex items-center justify-between shadow-sm animate-in`}>
+            <span className="font-medium">{feedback.message}</span>
+            <button onClick={() => setFeedback(null)} className="text-xl hover:scale-110 transition-transform">✕</button>
           </div>
         )}
-      </Card>
-    </PageLayout>
+
+        {/* Timer Card */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-indigo-100">
+          <div className="text-center space-y-6">
+            {/* Timer Display */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur-xl opacity-20"></div>
+              <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white px-8 py-8 rounded-2xl shadow-2xl">
+                <div className="text-5xl sm:text-7xl font-bold font-mono tracking-wider">
+                  {formatElapsedTime(elapsedTime)}
+                </div>
+                {isRunning && (
+                  <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <span className="text-2xl">{currentType === 'work' ? '💼' : '☕'}</span>
+                    <span className="font-semibold text-lg">
+                      {currentType === 'work' ? 'Werk Actief' : 'Pauze Actief'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Timer Controls */}
+            <div className="grid grid-cols-2 gap-4">
+              {!isRunning ? (
+                <button
+                  onClick={() => startTimer('work')}
+                  className="col-span-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3 text-lg"
+                >
+                  <span className="text-2xl">▶️</span>
+                  <span>Start Werk</span>
+                </button>
+              ) : currentType === 'work' ? (
+                <>
+                  <button
+                    onClick={stopTimer}
+                    className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">⏹️</span>
+                    <span>Stop</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      stopTimer();
+                      setTimeout(() => startTimer('break'), 300);
+                    }}
+                    className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">☕</span>
+                    <span>Pauze</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={stopTimer}
+                    className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">⏹️</span>
+                    <span>Stop</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      stopTimer();
+                      setTimeout(() => startTimer('work'), 300);
+                    }}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <span className="text-xl">▶️</span>
+                    <span>Hervat</span>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Log Form */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-indigo-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <span className="text-3xl">📝</span>
+            <span>{editing ? 'Log Bewerken' : 'Uren Loggen'}</span>
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Datum</label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Starttijd</label>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Eindtijd</label>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all bg-white"
+                >
+                  <option value="work">💼 Werk</option>
+                  <option value="break">☕ Pauze</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <span className="text-xl">{editing ? '✓' : '💾'}</span>
+                <span>{editing ? 'Bijwerken' : 'Opslaan'}</span>
+              </button>
+              {editing && (
+                <button
+                  type="button"
+                  onClick={() => setEditing(null)}
+                  className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold rounded-xl transition-all duration-200"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Summary Section */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-indigo-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <span className="text-3xl">📊</span>
+            <span>14-Dagen Overzicht</span>
+          </h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b-2 border-indigo-100">
+                  <th className="text-left px-4 py-3 text-sm font-bold text-gray-600">Datum</th>
+                  <th className="text-left px-4 py-3 text-sm font-bold text-gray-600">Totaal</th>
+                  <th className="text-left px-4 py-3 text-sm font-bold text-gray-600">Overwerk</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summaries.map((summary, index) => (
+                  <tr key={summary.date} className={`border-b border-gray-100 hover:bg-indigo-50 transition-colors ${index % 2 === 0 ? 'bg-gray-50/50' : ''}`}>
+                    <td className="px-4 py-3 font-medium text-gray-900">{summary.date}</td>
+                    <td className="px-4 py-3 font-bold text-indigo-600">{summary.totalHours}u</td>
+                    <td className="px-4 py-3 font-bold text-red-600">
+                      {(summary.overwork as any) > 0 ? `${summary.overwork}u` : '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Calendar Section */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-indigo-100">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <span className="text-3xl">📅</span>
+              <span>Kalender</span>
+            </h2>
+            <button
+              onClick={exportToExcel}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-2 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2"
+            >
+              <span className="text-xl">📊</span>
+              <span>Export Excel</span>
+            </button>
+          </div>
+
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border-2 border-indigo-100">
+            <Calendar
+              onClickDay={setSelectedDate}
+              value={selectedDate}
+              tileContent={({ date, view }) => {
+                if (view === 'month') {
+                  const hours = getHoursForDate(date);
+                  return hours !== '0.0' ? (
+                    <div className="mt-1 text-xs font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full">
+                      {hours}u
+                    </div>
+                  ) : null;
+                }
+                return null;
+              }}
+              className="w-full border-0"
+            />
+          </div>
+
+          {selectedDate && (
+            <div className="mt-6 space-y-3">
+              <h3 className="text-lg font-bold text-gray-900">
+                Logs - {format(selectedDate, 'dd-MM-yyyy')}
+              </h3>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {logs
+                  .filter(log => log.date === format(selectedDate, 'yyyy-MM-dd'))
+                  .map(log => (
+                    <div
+                      key={log.id}
+                      className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-100 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:shadow-lg transition-all duration-200"
+                    >
+                      <div>
+                        <p className="font-bold text-gray-900 text-lg">
+                          {log.startTime} - {log.endTime || '-'}
+                        </p>
+                        <p className="text-sm text-gray-600 flex items-center gap-1">
+                          <span className="text-lg">{log.type === 'work' ? '💼' : '☕'}</span>
+                          <span>{log.type === 'work' ? 'Werk' : 'Pauze'}</span>
+                        </p>
+                      </div>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <button
+                          onClick={() => editLog(log)}
+                          className="flex-1 sm:flex-none bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                          <span>✏️</span>
+                          <span>Bewerk</span>
+                        </button>
+                        <button
+                          onClick={() => deleteLog(log.id)}
+                          className="flex-1 sm:flex-none bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                          <span>🗑️</span>
+                          <span>Verwijder</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
   );
 };
 
