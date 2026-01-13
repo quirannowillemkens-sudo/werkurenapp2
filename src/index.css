@@ -8,21 +8,40 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
 }
 
 h1 {
-  font-size: 1.875rem;
-  font-weight: 700;
-}
-
-h2 {
   font-size: 1.5rem;
   font-weight: 700;
 }
 
-h3 {
+@media (min-width: 640px) {
+  h1 {
+    font-size: 1.875rem;
+  }
+}
+
+h2 {
   font-size: 1.25rem;
+  font-weight: 700;
+}
+
+@media (min-width: 640px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+}
+
+h3 {
+  font-size: 1.125rem;
   font-weight: 600;
+}
+
+@media (min-width: 640px) {
+  h3 {
+    font-size: 1.25rem;
+  }
 }
 
 label {
@@ -66,14 +85,23 @@ textarea {
 }
 
 .react-calendar__tile {
-  min-height: 6rem;
+  min-height: 4rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  padding: 0.25rem;
   border: 1px solid #e2e8f0;
   transition: all 200ms ease;
+  font-size: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .react-calendar__tile {
+    min-height: 6rem;
+    padding: 0.5rem;
+    font-size: 0.95rem;
+  }
 }
 
 .react-calendar__tile:hover {
@@ -97,17 +125,24 @@ textarea {
 }
 
 .react-calendar__navigation {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .react-calendar__navigation button {
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #e2e8f0;
   background: white;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 200ms ease;
+}
+
+@media (min-width: 640px) {
+  .react-calendar__navigation button {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
 }
 
 .react-calendar__navigation button:hover {

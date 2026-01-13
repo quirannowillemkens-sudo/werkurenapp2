@@ -32,9 +32,9 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const sizeClasses = {
-    sm: 'px-3 py-2 text-sm rounded-lg',
-    md: 'px-4 py-3 text-base rounded-lg',
-    lg: 'px-6 py-4 text-lg rounded-xl'
+    sm: 'px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg',
+    md: 'px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base rounded-lg',
+    lg: 'px-4 sm:px-6 py-2.5 sm:py-3 text-base sm:text-lg rounded-lg sm:rounded-xl'
   };
 
   const widthClass = fullWidth ? 'w-full' : '';
