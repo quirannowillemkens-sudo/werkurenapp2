@@ -2,32 +2,120 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for react-calendar */
+/* Typography */
+@layer base {
+  body {
+    @apply text-slate-900 antialiased;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+  }
+
+  label {
+    @apply text-sm font-medium text-slate-700;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply text-base;
+  }
+}
+
+/* Animations */
+@layer components {
+  .animate-in {
+    animation: slideInFade 300ms ease-out;
+  }
+
+  @keyframes slideInFade {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .group-hover\/card:hover {
+    @apply shadow-lg scale-105;
+  }
+}
+
+/* React Calendar Styling */
 .react-calendar {
-  font-size: 1.2rem;
   width: 100%;
+  font-size: 0.95rem;
+  border: none;
+  background: white;
+}
+
+.react-calendar__month-view__weekdays {
+  background: rgba(15, 23, 42, 0.05);
 }
 
 .react-calendar__tile {
-  min-height: 80px;
+  min-height: 6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  transition: all 200ms ease;
 }
 
-.react-calendar__month-view__days__day {
-  font-size: 1.5rem;
-  font-weight: bold;
+.react-calendar__tile:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.react-calendar__tile--active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.react-calendar__tile--now {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.react-calendar__month-view__days__day--other-month {
+  color: #cbd5e1;
 }
 
 .react-calendar__navigation {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
 .react-calendar__navigation button {
-  font-size: 1.5rem;
-  padding: 10px 20px;
-  min-height: 60px;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.react-calendar__navigation button:hover {
+  background: #f1f5f9;
+  border-color: #3b82f6;
+}
+
+.react-calendar__navigation button:active {
+  background: #e0e7ff;
+  border-color: #3b82f6;
 }

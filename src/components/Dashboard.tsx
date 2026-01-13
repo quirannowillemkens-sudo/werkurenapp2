@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { format, parseISO, differenceInMinutes } from 'date-fns';
+import { format, differenceInMinutes } from 'date-fns';
 import * as XLSX from 'xlsx';
 import Calendar from 'react-calendar';
+import { Button, Card, Input, PageLayout, Alert } from './ui';
 import 'react-calendar/dist/Calendar.css';
 
 type Log = {
@@ -19,7 +20,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<Log[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [date, setDate] = useState(format(selectedDate, 'yyyy-MM-dd'));
+  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(format(new Date(), 'HH:mm'));
   const [endTime, setEndTime] = useState('');
   const [type, setType] = useState('work');
@@ -28,13 +29,11 @@ const Dashboard = () => {
   const [currentType, setCurrentType] = useState('work');
   const [currentStart, setCurrentStart] = useState<Date | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
-
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [summaries, setSummaries] = useState<{ date: string; totalHours: number; overwork: number }[]>([]);
 
   useEffect(() => {
-    if (user) {
-      fetchLogs();
-    }
+    if (user) fetchLogs();
   }, [user]);
 
   useEffect(() => {
@@ -42,125 +41,97 @@ const Dashboard = () => {
   }, [logs]);
 
   useEffect(() => {
-    if (!editing) {
-      const dayLogs = logs.filter(log => log.date === date);
-      if (dayLogs.length > 0) {
-        const latestEnd = dayLogs.reduce((latest, log) => log.endTime && log.endTime > latest ? log.endTime : latest, '00:00');
-        setStartTime(latestEnd);
-      } else {
-        setStartTime(format(new Date(), 'HH:mm'));
-      }
-    }
-  }, [date, logs, editing]);
-
-  useEffect(() => {
-    setDate(format(selectedDate, 'yyyy-MM-dd'));
-  }, [selectedDate]);
-
-  const calculateSummaries = () => {
-    const grouped = logs.reduce((acc, log) => {
-      if (!acc[log.date]) acc[log.date] = [];
-      acc[log.date].push(log);
-      return acc;
-    }, {} as Record<string, Log[]>);
-
-    const summaryList = Object.entries(grouped).map(([date, dayLogs]) => {
-      const totalMinutes = dayLogs
-        .filter(log => log.type === 'work')
-        .reduce((sum, log) => {
-          if (log.endTime) {
-            const start = parseISO(`${log.date}T${log.startTime}`);
-            const end = parseISO(`${log.date}T${log.endTime}`);
-            return sum + differenceInMinutes(end, start);
-          }
-          return sum;
-        }, 0);
-      const totalHours = totalMinutes / 60;
-      const standardHours = 8; // 8 hours work
-      const overwork = Math.max(0, totalHours - standardHours);
-      return { date, totalHours: Math.round(totalHours * 100) / 100, overwork: Math.round(overwork * 100) / 100 };
-    });
-    setSummaries(summaryList);
-  };
-
-  useEffect(() => {
-    let interval: number | null = null;
+    let interval: number;
     if (isRunning && currentStart) {
-      interval = setInterval(() => {
-        setElapsedTime(Date.now() - currentStart.getTime());
-      }, 1000);
-    } else {
-      setElapsedTime(0);
+      interval = window.setInterval(() => {
+        setElapsedTime(new Date().getTime() - currentStart.getTime());
+      }, 100);
     }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [isRunning, currentStart]);
 
   const fetchLogs = () => {
-    const storedLogs = localStorage.getItem('workLogs');
-    if (storedLogs) {
-      const parsedLogs = JSON.parse(storedLogs);
-      const updatedLogs = parsedLogs.map((log: any) => ({ ...log, type: log.type || 'work' }));
-      setLogs(updatedLogs);
-    }
+    const stored = localStorage.getItem(`logs_${user}`);
+    if (stored) setLogs(JSON.parse(stored));
   };
 
   const saveLogs = (newLogs: Log[]) => {
-    localStorage.setItem('workLogs', JSON.stringify(newLogs));
     setLogs(newLogs);
+    localStorage.setItem(`logs_${user}`, JSON.stringify(newLogs));
+  };
+
+  const calculateSummaries = () => {
+    const grouped: Record<string, { work: number; break: number }> = {};
+    logs.forEach(log => {
+      if (!grouped[log.date]) grouped[log.date] = { work: 0, break: 0 };
+      if (log.endTime) {
+        const mins = differenceInMinutes(log.endTime, log.startTime);
+        grouped[log.date][log.type === 'work' ? 'work' : 'break'] += mins;
+      }
+    });
+
+    const summaryList = Object.entries(grouped)
+      .sort(([dateA], [dateB]) => dateB.localeCompare(dateA))
+      .slice(0, 14)
+      .map(([date, times]) => ({
+        date,
+        totalHours: (times.work / 60).toFixed(1),
+        overwork: Math.max(0, (times.work - 480) / 60).toFixed(1)
+      }));
+    setSummaries(summaryList as any);
+  };
+
+  const startTimer = (timerType: string) => {
+    setCurrentStart(new Date());
+    setIsRunning(true);
+    setCurrentType(timerType);
+    setElapsedTime(0);
+  };
+
+  const stopTimer = () => {
+    if (currentStart && isRunning) {
+      const minutes = Math.floor(differenceInMinutes(new Date(), currentStart));
+      if (minutes > 0) {
+        const endTimeStr = format(new Date(), 'HH:mm');
+        const newLog: Log = {
+          id: Date.now().toString(),
+          date: format(new Date(), 'yyyy-MM-dd'),
+          startTime: format(currentStart, 'HH:mm'),
+          endTime: endTimeStr,
+          type: currentType
+        };
+        saveLogs([...logs, newLog]);
+        setFeedback({ type: 'success', message: `${minutes} minuten gelogd` });
+      }
+    }
+    setIsRunning(false);
+    setCurrentStart(null);
+    setElapsedTime(0);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const logData: Log = { id: editing || Date.now().toString(), date, startTime, endTime: endTime || null, type };
     if (editing) {
-      const updatedLogs = logs.map(log => log.id === editing ? logData : log);
-      saveLogs(updatedLogs);
-      setEditing(null);
+      const updated = logs.map(log => 
+        log.id === editing ? { ...log, date, startTime, endTime: endTime || null, type } : log
+      );
+      saveLogs(updated);
+      setFeedback({ type: 'success', message: 'Log bijgewerkt' });
     } else {
-      saveLogs([...logs, logData]);
+      const newLog: Log = {
+        id: Date.now().toString(),
+        date,
+        startTime,
+        endTime: endTime || null,
+        type
+      };
+      saveLogs([...logs, newLog]);
+      setFeedback({ type: 'success', message: 'Log opgeslagen' });
     }
+    setEditing(null);
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setStartTime(format(new Date(), 'HH:mm'));
     setEndTime('');
-  };
-
-  const startTimer = (type: 'work' | 'break' = 'work') => {
-    if (isRunning) {
-      // Stop current session and log it
-      stopTimer();
-    }
-    setCurrentType(type);
-    setCurrentStart(new Date());
-    setIsRunning(true);
-  };
-
-  const stopTimer = () => {
-    if (currentStart) {
-      const end = new Date();
-      const logData: Log = {
-        id: Date.now().toString(),
-        date: format(currentStart, 'yyyy-MM-dd'),
-        startTime: format(currentStart, 'HH:mm'),
-        endTime: format(end, 'HH:mm'),
-        type: currentType
-      };
-      saveLogs([...logs, logData]);
-      setIsRunning(false);
-      setCurrentStart(null);
-      setElapsedTime(0);
-    }
-  };
-
-  const startBreak = () => {
-    stopTimer();
-    startTimer('break');
-  };
-
-  const startWork = () => {
-    stopTimer();
-    startTimer('work');
   };
 
   const editLog = (log: Log) => {
@@ -172,8 +143,8 @@ const Dashboard = () => {
   };
 
   const deleteLog = (id: string) => {
-    const updatedLogs = logs.filter(log => log.id !== id);
-    saveLogs(updatedLogs);
+    saveLogs(logs.filter(log => log.id !== id));
+    setFeedback({ type: 'success', message: 'Log verwijderd' });
   };
 
   const handleLogout = () => {
@@ -186,11 +157,12 @@ const Dashboard = () => {
       Date: log.date,
       Start: log.startTime,
       End: log.endTime || '',
-      Type: log.type
+      Type: log.type === 'work' ? 'Werk' : 'Pauze'
     })));
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Logs');
-    XLSX.writeFile(wb, 'work_logs.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'Werkuren');
+    XLSX.writeFile(wb, `werkuren_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    setFeedback({ type: 'success', message: 'Bestand gedownload' });
   };
 
   const formatElapsedTime = (ms: number) => {
@@ -202,207 +174,289 @@ const Dashboard = () => {
 
   const getHoursForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    const dayLogs = logs.filter(log => log.date === dateStr && log.type === 'work');
-    const totalMinutes = dayLogs.reduce((sum, log) => {
-      if (log.endTime) {
-        const start = parseISO(`${log.date}T${log.startTime}`);
-        const end = parseISO(`${log.date}T${log.endTime}`);
-        return sum + differenceInMinutes(end, start);
-      }
-      return sum;
-    }, 0);
-    return (totalMinutes / 60).toFixed(1);
+    const dayLogs = logs.filter(log => log.date === dateStr && log.type === 'work' && log.endTime);
+    return (dayLogs.reduce((sum, log) => sum + differenceInMinutes(log.endTime!, log.startTime) / 60, 0)).toFixed(1);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <header className="flex justify-between items-center mb-10 px-4">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-2xl">⏰</span>
-            </div>
-            <h1 className="text-5xl sm:text-6xl font-bold text-gray-800">Werkuren Logger</h1>
-          </div>
-          <button onClick={handleLogout} className="bg-gradient-to-r from-slate-600 to-slate-700 text-white px-6 py-3 rounded-xl text-2xl font-semibold min-h-[60px] hover:from-slate-700 hover:to-slate-800 transform hover:scale-105 transition-all duration-200 shadow-lg">
-            Uitloggen
-          </button>
-        </header>
-        <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl mb-10 border border-gray-200">
-          <h2 className="text-4xl mb-8 font-bold text-gray-800 text-center flex items-center justify-center">
-            <span className="mr-3">⏱️</span> Timer
-          </h2>
-          <div className="mb-8 text-center">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-6 rounded-2xl shadow-lg inline-block">
-              <span className="text-5xl font-mono font-bold">{formatElapsedTime(elapsedTime)}</span>
-            </div>
-            {isRunning && <div className="mt-4 text-2xl font-semibold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg inline-block">
-              {currentType === 'work' ? '💼 Werk actief' : '☕ Pauze actief'}
-            </div>}
-          </div>
-          <div className="flex flex-col gap-4">
-            {!isRunning ? (
-              <button onClick={() => startTimer('work')} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                ▶️ Start Werk
-              </button>
-            ) : currentType === 'work' ? (
-              <>
-                <button onClick={stopTimer} className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-red-700 hover:to-red-800 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                  ⏹️ Stop
-                </button>
-                <button onClick={startBreak} className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-amber-600 hover:to-orange-600 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                  ☕ Pauze
-                </button>
-              </>
-            ) : (
-              <>
-                <button onClick={stopTimer} className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-red-700 hover:to-red-800 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                  ⏹️ Stop
-                </button>
-                <button onClick={startWork} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                  ▶️ Hervat Werk
-                </button>
-              </>
-            )}
-          </div>
+    <PageLayout
+      title="Werkuren Logger"
+      header={true}
+      headerAction={
+        <Button 
+          variant="secondary"
+          size="md"
+          onClick={handleLogout}
+          icon="🚪"
+        >
+          Uitloggen
+        </Button>
+      }
+    >
+      {feedback && (
+        <div className="mb-6">
+          <Alert
+            type={feedback.type}
+            message={feedback.message}
+            onClose={() => setFeedback(null)}
+          />
         </div>
-        <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl mb-10 border border-gray-200">
-          <h2 className="text-4xl mb-8 font-bold text-gray-800 text-center flex items-center justify-center">
-            <span className="mr-3">📝</span> {editing ? 'Log Bewerken' : 'Uren Loggen'}
-          </h2>
-          <div className="grid grid-cols-1 gap-6">
-            <div>
-              <label className="block text-2xl font-semibold mb-3 text-gray-700">📅 Datum</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
-                required
-              />
+      )}
+
+      {/* Timer Section */}
+      <Card variant="elevated" className="p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+          <span>⏱️</span> Timer
+        </h2>
+
+        <div className="mb-8 text-center">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-6 rounded-xl inline-block shadow-lg">
+            <span className="text-5xl font-mono font-bold font-sans">
+              {formatElapsedTime(elapsedTime)}
+            </span>
+          </div>
+          {isRunning && (
+            <div className="mt-4 text-lg font-semibold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg inline-block">
+              {currentType === 'work' ? '💼 Werk actief' : '☕ Pauze actief'}
             </div>
-            <div>
-              <label className="block text-2xl font-semibold mb-3 text-gray-700">🕐 Starttijd</label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-2xl font-semibold mb-3 text-gray-700">🕐 Eindtijd (optioneel)</label>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50"
-              />
-            </div>
-            <div>
-              <label className="block text-2xl font-semibold mb-3 text-gray-700">🏷️ Type</label>
-              <select value={type} onChange={(e) => setType(e.target.value)} className="w-full p-5 border-2 border-gray-300 rounded-xl text-3xl min-h-[72px] focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50">
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {!isRunning ? (
+            <Button 
+              variant="success"
+              size="lg"
+              onClick={() => startTimer('work')}
+              icon="▶️"
+              className="col-span-1 sm:col-span-2"
+            >
+              Start Werk
+            </Button>
+          ) : currentType === 'work' ? (
+            <>
+              <Button 
+                variant="danger"
+                size="lg"
+                onClick={stopTimer}
+                icon="⏹️"
+              >
+                Stop
+              </Button>
+              <Button 
+                variant="secondary"
+                size="lg"
+                onClick={() => {
+                  stopTimer();
+                  setTimeout(() => startTimer('break'), 300);
+                }}
+                icon="☕"
+              >
+                Pauze
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="danger"
+                size="lg"
+                onClick={stopTimer}
+                icon="⏹️"
+              >
+                Stop
+              </Button>
+              <Button 
+                variant="success"
+                size="lg"
+                onClick={() => {
+                  stopTimer();
+                  setTimeout(() => startTimer('work'), 300);
+                }}
+                icon="▶️"
+              >
+                Hervat
+              </Button>
+            </>
+          )}
+        </div>
+      </Card>
+
+      {/* Form Section */}
+      <Card variant="elevated" className="p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+          <span>📝</span> {editing ? 'Log Bewerken' : 'Uren Loggen'}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Input
+              label="Datum"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+            />
+            <Input
+              label="Starttijd"
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required
+            />
+            <Input
+              label="Eindtijd (optioneel)"
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+            />
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">Type</label>
+              <select 
+                value={type} 
+                onChange={(e) => setType(e.target.value)}
+                className="px-4 py-2.5 text-base rounded-lg border-2 border-slate-200 bg-white focus:border-blue-500 focus:outline-none transition-all"
+              >
                 <option value="work">💼 Werk</option>
                 <option value="break">☕ Pauze</option>
               </select>
             </div>
           </div>
-          <div className="mt-8 flex flex-col gap-4">
-            <button type="submit" className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-              {editing ? '✏️ Bijwerken' : '💾 Opslaan'}
-            </button>
-            {editing && <button type="button" onClick={() => setEditing(null)} className="bg-gradient-to-r from-slate-500 to-slate-600 text-white px-8 py-4 rounded-xl text-4xl font-bold min-h-[70px] hover:from-slate-600 hover:to-slate-700 transform hover:scale-105 transition-all duration-200 shadow-lg">❌ Annuleren</button>}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              icon={editing ? "✓" : "💾"}
+            >
+              {editing ? 'Bijwerken' : 'Opslaan'}
+            </Button>
+            {editing && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="lg"
+                onClick={() => setEditing(null)}
+                icon="✕"
+              >
+                Annuleren
+              </Button>
+            )}
           </div>
         </form>
-        <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl mb-10 border border-gray-200">
-          <h2 className="text-4xl mb-8 font-bold text-gray-800 text-center flex items-center justify-center">
-            <span className="mr-3">📊</span> Dagelijkse Samenvatting
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full table-auto min-w-[400px] text-2xl bg-white rounded-2xl overflow-hidden shadow-lg">
-              <thead className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                <tr>
-                  <th className="text-left p-4 font-bold">📅 Datum</th>
-                  <th className="text-left p-4 font-bold">⏰ Totaal Uren</th>
-                  <th className="text-left p-4 font-bold">⚡ Overwerk Uren</th>
+      </Card>
+
+      {/* Summary Section */}
+      <Card variant="elevated" className="p-8 mb-8">
+        <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+          <span>📊</span> Overzicht
+        </h2>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b-2 border-slate-200 bg-slate-50">
+                <th className="text-left px-4 py-3 font-semibold text-slate-700">Datum</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate-700">Totaal</th>
+                <th className="text-left px-4 py-3 font-semibold text-slate-700">Overwerk</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summaries.map(summary => (
+                <tr key={summary.date} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                  <td className="px-4 py-3 text-slate-900 font-medium">{summary.date}</td>
+                  <td className="px-4 py-3 text-blue-600 font-semibold">{summary.totalHours}u</td>
+                  <td className="px-4 py-3 text-red-600 font-semibold">
+                    {(summary.overwork as any) > 0 ? `${summary.overwork}u` : '-'}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {summaries.map(summary => (
-                  <tr key={summary.date} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                    <td className="p-4 font-semibold">{summary.date}</td>
-                    <td className="p-4 font-semibold text-blue-600">{summary.totalHours}u</td>
-                    <td className="p-4 font-semibold text-red-600">{summary.overwork > 0 ? `${summary.overwork}u` : '-'}</td>
-                  </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Calendar Section */}
+      <Card variant="elevated" className="p-8 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+            <span>📅</span> Kalender
+          </h2>
+          <Button
+            variant="success"
+            onClick={exportToExcel}
+            icon="📊"
+          >
+            Export Excel
+          </Button>
+        </div>
+
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+          <Calendar
+            onClickDay={setSelectedDate}
+            value={selectedDate}
+            tileContent={({ date, view }) => {
+              if (view === 'month') {
+                const hours = getHoursForDate(date);
+                return hours !== '0.0' ? (
+                  <p className="text-sm font-bold text-blue-600 mt-1">{hours}u</p>
+                ) : null;
+              }
+              return null;
+            }}
+            className="w-full text-sm"
+            tileClassName="h-24 flex flex-col items-center justify-center hover:bg-blue-50 rounded transition-colors"
+          />
+        </div>
+
+        {selectedDate && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Logs voor {format(selectedDate, 'dd-MM-yyyy')}
+            </h3>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {logs
+                .filter(log => log.date === format(selectedDate, 'yyyy-MM-dd'))
+                .map(log => (
+                  <div
+                    key={log.id}
+                    className="bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-100 transition-colors"
+                  >
+                    <div>
+                      <p className="font-semibold text-slate-900">
+                        {log.startTime} - {log.endTime || '-'}
+                      </p>
+                      <p className="text-sm text-slate-600">
+                        {log.type === 'work' ? '💼 Werk' : '☕ Pauze'}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => editLog(log)}
+                        icon="✏️"
+                        className="flex-1 sm:flex-none"
+                      >
+                        Bewerk
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => deleteLog(log.id)}
+                        icon="🗑️"
+                        className="flex-1 sm:flex-none"
+                      >
+                        Verwijder
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h2 className="text-4xl font-bold text-gray-800 flex items-center">
-              <span className="mr-3">📅</span> Kalender
-            </h2>
-            <button onClick={exportToExcel} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl text-2xl font-bold min-h-[60px] hover:from-green-700 hover:to-emerald-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-              📊 Export Excel
-            </button>
-          </div>
-          <div className="mb-8 bg-white rounded-2xl p-4 shadow-lg">
-            <Calendar
-              onClickDay={setSelectedDate}
-              value={selectedDate}
-              tileContent={({ date, view }) => {
-                if (view === 'month') {
-                  const hours = getHoursForDate(date);
-                  return hours !== '0.0' ? <p className="text-lg text-center font-bold text-blue-600">{hours}u</p> : null;
-                }
-                return null;
-              }}
-              className="w-full text-xl border-none"
-              tileClassName="min-h-[80px] flex items-center justify-center hover:bg-blue-50 rounded-lg transition-colors"
-            />
-          </div>
-          {selectedDate && (
-            <div className="bg-white/90 p-6 rounded-2xl shadow-lg border border-gray-100">
-              <h3 className="text-4xl mb-6 font-bold text-gray-800">📋 Logs voor {format(selectedDate, 'dd-MM-yyyy')}</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full table-auto min-w-[600px] text-2xl bg-white rounded-xl overflow-hidden shadow-md">
-                  <thead className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                    <tr>
-                      <th className="text-left p-4 font-bold">🕐 Start</th>
-                      <th className="text-left p-4 font-bold">🕐 Eind</th>
-                      <th className="text-left p-4 font-bold">🏷️ Type</th>
-                      <th className="text-left p-4 font-bold">⚙️ Acties</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {logs.filter(log => log.date === format(selectedDate, 'yyyy-MM-dd')).map(log => (
-                      <tr key={log.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                        <td className="p-4 font-semibold">{log.startTime}</td>
-                        <td className="p-4 font-semibold">{log.endTime || '-'}</td>
-                        <td className="p-4 font-semibold">{log.type === 'work' ? '💼 Werk' : '☕ Pauze'}</td>
-                        <td className="p-4">
-                          <div className="flex flex-col gap-3">
-                            <button onClick={() => editLog(log)} className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl text-4xl font-bold min-h-[60px] hover:from-blue-600 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                              ✏️ Bewerken
-                            </button>
-                            <button onClick={() => deleteLog(log.id)} className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl text-4xl font-bold min-h-[60px] hover:from-red-600 hover:to-red-700 transform hover:scale-105 transition-all duration-200 shadow-lg">
-                              🗑️ Verwijderen
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+          </div>
+        )}
+      </Card>
+    </PageLayout>
   );
 };
 
